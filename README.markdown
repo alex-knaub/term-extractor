@@ -33,7 +33,7 @@ No attempt is made to assign meaning to the terms: They're not guaranteed to rep
 
 One limitation of this is that it doesn't necessarily extract all reasonable terms. For example "natural language" is a reasonable term for this text which is not included in this. The way we use the term extractor at trampoline is to build a vocabulary of terms we consider interesting and then performing literal string searching for this term - this allows us to be selective in what terms we generate and permissive in looking for matches for them.
 
-Currently only english is supported. There are plans 
+Currently only english is supported. There are plans to support other languages, but nothing is implemented in that regard: It requires someone who is native to that language, a competent programmer and at least passingly familiar with NLP, so understandably we're a bit resource constrained on getting wide spread non-english support. 
 
 ## Copyright
 
