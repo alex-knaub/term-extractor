@@ -1,3 +1,4 @@
+#!/usr/bin/env jruby
 require "term-extractor"
 
 PE = TermExtractor.new
