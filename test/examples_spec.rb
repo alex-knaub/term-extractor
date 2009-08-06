@@ -147,3 +147,18 @@ describe "TweetTerms" do
     TweetTerms.should_not include(" ")
   end
 end
+
+Scala = "Scala is a multi-paradigm programming language designed to integrate features of object-oriented programming and functional programming"
+
+
+ScalaTerms = PE.extract_terms_from_text(Scala).map{|x| x.to_s}.sort.uniq
+
+describe "Scala terms" do
+  it "should be functional" do
+    ScalaTerms.should include("functional programming")
+  end
+
+  it "should be object-oriented" do
+    ScalaTerms.should include("object-oriented programming")
+  end
+end

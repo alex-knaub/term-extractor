@@ -71,7 +71,7 @@ class TermExtractor
         chunk = chunks[i]
 
         # Cannot cross commas or coordinating conjections (and, or, etc)
-        b[:can_cross] = !(pos =~ /,|CC/)
+        b[:can_cross] = !(pos =~ /,/)
   
         # Cannot cross the beginning of verb terms
         # i.e. we may start with verb terms but not include them
@@ -98,6 +98,22 @@ class TermExtractor
         # We must include any tokens internal to the current chunk
         b[:can_end] = !(chunks[i + 1] =~ /I-/)
 
+        # We break phrases around coordinating conjunctions (and, or, etc)
+        # but allow phrases that should rightfully be forced to continue past
+        # the conjunction. e.g. in "nuts and bolts", we allow "nuts" and "bolts" 
+        # but not the whole phrase. This is true even if this resolves as a single
+        # chunk
+        if pos == 'CC'
+          @boundaries[i-1][:can_end] = true if i > 0        
+          @boundaries[i][:can_cross] = false
+        end   
+        # need to do it here rather than in previous if statement
+        # as otherwise the next pass along will overwrite the result
+        # we set here.
+        if i > 0 && @postags[i-1] == 'CC'
+          @boundaries[i][:can_start] = true
+        end
+
         # It is permitted to cross stopwords, but they cannot lie at the term boundary
         if (nlp.stopword? tok) || (nlp.stopword? tokens[i..i+1].join) # Need to take into account contractions, which span multiple tokens
           b[:can_end] = false
@@ -111,7 +127,7 @@ class TermExtractor
           b[:can_start] = false
           @boundaries[i - 1][:can_end] = false
         end
-    
+
         # Must match the requirements for POSes at the beginning and end.      
         b[:can_start] &&= !(pos =~ parent.proscribed_start) 
         b[:can_end] &&= (pos =~ parent.required_ending) 
