@@ -10,7 +10,8 @@ set of terms from it which make sense without additional context. For example, f
     currently working on natural language processing and social analytic
     software at Trampoline Systems.
 
-    This site is my public face on the internet. It contains my blog, my OpenID and anything else I want to share with the world. 
+    This site is my public face on the internet. It contains my blog, 
+    my OpenID and anything else I want to share with the world. 
 
 We get the following terms:
 
