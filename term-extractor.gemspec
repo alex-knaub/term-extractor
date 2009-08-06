@@ -36,6 +36,7 @@ Gem::Specification.new do |s|
      "models/tag.bin.gz",
      "models/tagdict",
      "models/tok.bin.gz",
+     "term-extractor.gemspec",
      "test/examples_spec.rb",
      "test/files/1.email",
      "test/files/juries_seg_8_v1",
