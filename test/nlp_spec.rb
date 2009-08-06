@@ -39,9 +39,8 @@ I like kitties
 
 I like puppies
 KITTIES
-
-
   end
+
 end
 
 describe "url removal" do

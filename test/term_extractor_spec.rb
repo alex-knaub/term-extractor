@@ -137,5 +137,4 @@ BINARYSOLO
       term.to_s.should_not =~ /’|'/
     }
   end
-
 end

@@ -1,6 +1,6 @@
 require "term-extractor"
 
-PE = TermExtractor.new
+PE = TermExtractor.new unless defined? PE
 
 Diagrams = <<DIAGRAMS
 I think having nice standardised diagrams of stuff like that is REALLY
@@ -128,4 +128,22 @@ describe "Apollo terms" do
     ApolloTerms.should include("world")
   end
 
+end
+
+Tweets = <<TWEETS
+Playing around with meetup.com. Trying to remember why I didn't do more than look at it last time I discovered it: Seems great so far.
+I'm bored. Anyone around London want to do something?
+Suddenly realised that my twitter project was heading towards the dark side at an alarming rate. Time to scupper that plan....
+@eisokant I kinda need this information to be as accurate as possible. I'll probably have to fetch the sender's tweet history. Sigh.
+@eisokant It's not user ids that are problematic. It's that the returned results don't have information about which tweets they reply to. 
+Is there any way to get in_reply_to details in the search API? If not, this project just became substantially more annoying. :-(
+TWEETS
+
+TweetTerms = PE.extract_terms_from_text(Tweets).map{|x| x.to_s}.sort.uniq
+
+describe "TweetTerms" do 
+  it "should not include blank strings" do
+    TweetTerms.should_not include("")
+    TweetTerms.should_not include(" ")
+  end
 end
