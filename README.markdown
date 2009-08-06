@@ -5,7 +5,10 @@ set of terms from it which make sense without additional context. For example, f
 
     Hi. I’m David.
 
-    I’m also various other things. By training I’m a mathematician, but I seem to have drifted away from that and become a programmer, currently working on natural language processing and social analytic software at Trampoline Systems.
+    I’m also various other things. By training I’m a mathematician, 
+    but I seem to have drifted away from that and become a programmer, 
+    currently working on natural language processing and social analytic
+    software at Trampoline Systems.
 
     This site is my public face on the internet. It contains my blog, my OpenID and anything else I want to share with the world. 
 
