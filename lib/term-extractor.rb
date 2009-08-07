@@ -8,6 +8,7 @@ class Term
   end
 end
 
+# A class for extracting useful snippets of text from a document
 class TermExtractor
   attr_accessor :nlp, :max_term_length, :proscribed_start, :required_ending, :remove_urls, :remove_paths
 
@@ -30,7 +31,14 @@ class TermExtractor
     yield self if block_given?
   end
 
-
+  
+  # This class holds all the state needed for term calculations
+  # on a single sentence. 
+  # It uses chunking and part of speech tagging information to 
+  # mark each token in the sentence as to whether it is allowed 
+  # to start a term or end a term and whether terms can cross it
+  # Terms are then calculated by simply looking for all sequences
+  # of tokens up to the maximum length which meet these constraints.
   class TermContext
     attr_accessor :parent, :tokens, :postags, :chunks
     
@@ -55,7 +63,8 @@ class TermExtractor
       @sentence = sentence
 
     end
-   
+
+    # This is the bit where all the work happens   
     def boundaries
       return @boundaries if @boundaries
 
@@ -66,6 +75,11 @@ class TermExtractor
       @boundaries = tokens.map{|t| {}}
 
       @boundaries.each_with_index do |b, i|  
+        # WARNING: It's important to only write boundaries for indices 
+        # <= i. Otherwise the next loop iteration will overwrite the 
+        # set value.
+        
+
         tok = tokens[i]
         pos = postags[i]
         chunk = chunks[i]
