@@ -10,7 +10,7 @@ end
 
 # A class for extracting useful snippets of text from a document
 class TermExtractor
-  attr_accessor :nlp, :max_term_length, :proscribed_start, :required_ending, :remove_urls, :remove_paths
+  attr_accessor :nlp, :max_term_length, :remove_urls, :remove_paths
 
   def initialize(models = File.dirname(__FILE__) + "/../models")
     @nlp = NLP.new(models)
@@ -19,11 +19,6 @@ class TermExtractor
     # too specific to be useful or very noisy.
     @max_term_length = 5
 
-    # Common sources of crap starting words
-    @proscribed_start = /CC|PRP|IN|DT|PRP\$|WP|WP\$|TO|EX|JJR|JJS/
-
-    # We have to end in a noun, foreign word or number.
-    @required_ending = /NN|NNS|NNP|NNPS|FW|CD/
 
     self.remove_urls = true
     self.remove_paths = true
@@ -140,8 +135,14 @@ class TermExtractor
         end
 
         # Must match the requirements for POSes at the beginning and end.      
-        b[:can_start] &&= !(pos =~ parent.proscribed_start) 
-        b[:can_end] &&= (pos =~ parent.required_ending) 
+
+
+
+        # Common sources of crap starting words
+        b[:can_start] &&= !(pos =~ /CC|PRP|IN|DT|PRP\$|WP|WP\$|TO|EX|JJR|JJS/)
+
+        # TODO: Is this still a good idea?
+        b[:can_end] &&= (pos =~ /NN|NNS|NNP|NNPS|FW|CD/)
 
       end
 
