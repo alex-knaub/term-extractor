@@ -20,7 +20,7 @@ class TermExtractor
     @max_term_length = 5
 
     # Common sources of crap starting words
-    @proscribed_start = /CC|PRP|IN|DT|PRP\$|WP|WP\$|TO|EX/
+    @proscribed_start = /CC|PRP|IN|DT|PRP\$|WP|WP\$|TO|EX|JJR|JJS/
 
     # We have to end in a noun, foreign word or number.
     @required_ending = /NN|NNS|NNP|NNPS|FW|CD/
@@ -97,16 +97,13 @@ class TermExtractor
 
         # We are only allowed to start terms on the beginning of a term chunk
         b[:can_start] = (chunks[i] == "B-NP")
-        if i > 0
-          if postags[i-1] =~ /DT|WDT|PRP|JJR|JJS/
-              # In some cases we want to move the start of a term to the right. These cases are:
-              # - a determiner (the, a, etc)
-              # - a posessive pronoun (my, your, etc) 
-              # - comparative and superlative adjectives (best, better, etc.)
-              # In all cases we only do this for noun terms, and will only move them to internal points.
-              b[:can_start] ||= (chunks[i] == "I-NP")
-              @boundaries[i - 1][:can_start] = false
-          end
+        if (chunks[i] == "I-NP") && (postags[i-1] =~ /DT|WDT|PRP|JJR|JJS/)
+            # In some cases we want to move the start of a term to the right. These cases are:
+            # - a determiner (the, a, etc)
+            # - a posessive pronoun (my, your, etc) 
+            # - comparative and superlative adjectives (best, better, etc.)
+            # In all cases we only do this for noun terms, and will only move them to internal points.
+            b[:can_start] = true 
         end
 
         # We must include any tokens internal to the current chunk
