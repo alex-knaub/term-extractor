@@ -97,9 +97,11 @@ class TermExtractor
         # - a determiner (the, a, etc)
         # - a posessive pronoun (my, your, etc) 
         # - comparative and superlative adjectives (best, better, etc.)
-        # - A number. In this case note that starting with the number is also allowed. e.g. "a tale of two cities" will produce both "two cities" and "cities"
+        # - A number. In this case note that starting with the number is also allowed. e.g. "two cities" will produce both "two cities"
         # In all cases we only do this for noun terms, and will only move them to internal points.
-        b[:can_start] ||= (chunks[i] == "I-NP") && (postags[i-1] =~ /DT|WDT|PRP|JJR|JJS/)
+        if (chunks[i] == "I-NP") && (postags[i-1] =~ /DT|WDT|PRP|JJR|JJS|CD/)
+            b[:can_start] = true 
+        end
 
         # We must include any tokens internal to the current chunk
         b[:can_end] = !(chunks[i + 1] =~ /I-/)
@@ -133,10 +135,6 @@ class TermExtractor
           b[:can_start] = false
           @boundaries[i - 1][:can_end] = false
         end
-
-        # Must match the requirements for POSes at the beginning and end.      
-
-
 
         # Common sources of crap starting words
         b[:can_start] &&= !(pos =~ /CC|PRP|IN|DT|PRP\$|WP|WP\$|TO|EX|JJR|JJS/)
@@ -207,7 +205,7 @@ class TermExtractor
 
   # Final post filter on terms to determine if they're allowed.
   def self.allowed_term?(p)
-    return false if p.pos =~ /^CD(-CD)*$/ # We don't allow things which are just sequences of numbers
+    return false if p.to_s =~ /^[^a-zA-Z]*$/ # We don't allow things which are just sequences of numbers
     return false if p.to_s.length > 255
     true
   end
