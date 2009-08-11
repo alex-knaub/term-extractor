@@ -92,14 +92,14 @@ class TermExtractor
 
         # We are only allowed to start terms on the beginning of a term chunk
         b[:can_start] = (chunks[i] == "B-NP")
-        if (chunks[i] == "I-NP") && (postags[i-1] =~ /DT|WDT|PRP|JJR|JJS/)
-            # In some cases we want to move the start of a term to the right. These cases are:
-            # - a determiner (the, a, etc)
-            # - a posessive pronoun (my, your, etc) 
-            # - comparative and superlative adjectives (best, better, etc.)
-            # In all cases we only do this for noun terms, and will only move them to internal points.
-            b[:can_start] = true 
-        end
+
+        # In some cases we want to move the start of a term to the right. These cases are:
+        # - a determiner (the, a, etc)
+        # - a posessive pronoun (my, your, etc) 
+        # - comparative and superlative adjectives (best, better, etc.)
+        # - A number. In this case note that starting with the number is also allowed. e.g. "a tale of two cities" will produce both "two cities" and "cities"
+        # In all cases we only do this for noun terms, and will only move them to internal points.
+        b[:can_start] ||= (chunks[i] == "I-NP") && (postags[i-1] =~ /DT|WDT|PRP|JJR|JJS/)
 
         # We must include any tokens internal to the current chunk
         b[:can_end] = !(chunks[i + 1] =~ /I-/)
