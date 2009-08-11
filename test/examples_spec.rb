@@ -162,3 +162,62 @@ describe "Scala terms" do
     ScalaTerms.should include("object-oriented programming")
   end
 end
+
+SnakeAttack = <<SNAKE
+Gang use snake in street attack
+
+A gang brandishing a snake as a 'weapon' attacked a 14-year-old boy with a 4ft (1.2m) python, forcing the reptile to bite the teenager's arm.
+
+Police suspect the attack, in Bradley Stoke, South Gloucestershire, may have had a racist element to it and officers are appealing for witnesses.
+
+The boy was pinned to the floor on Saturday afternoon, as one gang member forced the green python to attack.
+
+Two youths aged 16 and 17, both boys, are being questioned.
+
+The teenager was taken to Frenchay Hospital for checks.
+
+Ambush predators
+
+Police and the RSPCA are now investigating the incident, which took place at about 1500 BST.
+
+Paramedics who attended the scene were left baffled by the injury and called Bristol Zoo for advice.
+
+A spokesman for Great Western Ambulance service (GWAS) said: "Ambulance staff consulted Google and Bristol Zoo experts after a teenager was attacked by a group of youths."
+
+The spokesman added that the group forced the snake to bite the boy on the arm, leaving two puncture wounds.
+
+Pythons are ambush predators which rely on crushing their prey, and are not venomous.
+
+GWAS incident support officer Michael Howells, who was at the scene, said: "Although the patient was suffering breathing difficulties after the attack, this was probably due to panic rather than a reaction to the bite. I would probably be panicky if that happened to me."
+
+An Avon and Somerset Police spokesman said: "The teenager had been subject to racist comments and was then reportedly held down as a snake was held in front of him, which bit his right arm.
+
+"The boy was taken to Frenchay Hospital with breathing problems, where he was treated for the injury to his arm.
+
+"Police would like to hear from anyone who was in Merryweather Close at the time of the incident."
+SNAKE
+
+SnakeAttackTerms = PE.extract_terms_from_text(SnakeAttack).map{|x| x.to_s}.sort.uniq
+
+describe "snake attack" do
+  it "should identify places" do
+    ["Frenchay Hospital", "Merryweather Close", "Bristol Zoo"].each { |term|
+      SnakeAttackTerms.should include(term)
+    }
+  end
+
+  it "should identify conditions" do
+    ["breathing difficulties", "puncture wounds"].each { |term|
+      SnakeAttackTerms.should include(term)
+    } 
+  end
+
+  it "should not include trailing bits of sentence" do
+    ["breathing difficulties after the attack", 
+     "Bristol Zoo for advice",
+     "Merryweather Close at the time"
+    ].each {|term|
+      SnakeAttackTerms.should_not include(term)
+    }
+  end
+end
