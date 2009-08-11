@@ -1,10 +1,15 @@
 require "term-extractor/nlp"
 
 class Term
-  attr_accessor :to_s, :pos, :sentence
+  attr_accessor :pos, :sentence, :chunks, :tokens
 
-  def initialize(ts, pos, sentence = nil)
-    @to_s, @pos, @sentence = ts, pos, sentence
+  def initialize(tokens)
+    @tokens = tokens
+    yield self if block_given?
+  end
+
+  def to_s
+    @to_s ||= TermExtractor.recombobulate_term(@tokens)
   end
 end
 
@@ -81,7 +86,18 @@ class TermExtractor
 
         # Cannot cross commas or coordinating conjections (and, or, etc)
         b[:can_cross] = !(pos =~ /,/)
-  
+
+        # words which are extra double plus stop wordy and shouldn't appear inside
+        # terms
+        # FIXME: This is a hack. 
+        b[:can_cross] &&= ![
+          "after", 
+          "where",
+          "when",
+          "for",
+          "at"
+        ].include?(tok)
+ 
         # Cannot cross the beginning of verb terms
         # i.e. we may start with verb terms but not include them
         b[:can_cross] = (chunk != "B-VP") if b[:can_cross]
@@ -175,7 +191,10 @@ class TermExtractor
 
         term = tokens[i..j]
         poses = postags.to_a[i..j]
-        term = Term.new(TermExtractor.recombobulate_term(term), poses.join("-"))
+        term = Term.new(term){ |it|
+          it.pos = poses.join("-")
+          it.chunks = chunks.to_a[i..j]
+        }
         terms << term if TermExtractor.allowed_term?(term)
 
         j += 1
