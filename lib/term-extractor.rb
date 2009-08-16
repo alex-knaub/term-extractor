@@ -1,16 +1,21 @@
 require "term-extractor/nlp"
 
 class Term
-  attr_accessor :to_s, :pos, :sentence
+  attr_accessor :pos, :sentence, :chunks, :tokens
 
-  def initialize(ts, pos, sentence = nil)
-    @to_s, @pos, @sentence = ts, pos, sentence
+  def initialize(tokens)
+    @tokens = tokens
+    yield self if block_given?
+  end
+
+  def to_s
+    @to_s ||= TermExtractor.recombobulate_term(@tokens)
   end
 end
 
 # A class for extracting useful snippets of text from a document
 class TermExtractor
-  attr_accessor :nlp, :max_term_length, :proscribed_start, :required_ending, :remove_urls, :remove_paths
+  attr_accessor :nlp, :max_term_length, :remove_urls, :remove_paths
 
   def initialize(models = File.dirname(__FILE__) + "/../models")
     @nlp = NLP.new(models)
@@ -19,11 +24,6 @@ class TermExtractor
     # too specific to be useful or very noisy.
     @max_term_length = 4 
 
-    # Common sources of crap starting words
-    @proscribed_start = /CC|PRP|IN|DT|PRP\$|WP|WP\$|TO|EX/
-
-    # We have to end in a noun, foreign word or number.
-    @required_ending = /NN|NNS|NNP|NNPS|FW|CD/
 
     self.remove_urls = true
     self.remove_paths = true
@@ -86,7 +86,18 @@ class TermExtractor
 
         # Cannot cross commas or coordinating conjections (and, or, etc)
         b[:can_cross] = !(pos =~ /,/)
-  
+
+        # words which are extra double plus stop wordy and shouldn't appear inside
+        # terms
+        # FIXME: This is a hack. 
+        b[:can_cross] &&= ![
+          "after", 
+          "where",
+          "when",
+          "for",
+          "at"
+        ].include?(tok)
+ 
         # Cannot cross the beginning of verb terms
         # i.e. we may start with verb terms but not include them
         b[:can_cross] = (chunk != "B-VP") if b[:can_cross]
@@ -97,16 +108,15 @@ class TermExtractor
 
         # We are only allowed to start terms on the beginning of a term chunk
         b[:can_start] = (chunks[i] == "B-NP")
-        if i > 0
-          if postags[i-1] =~ /DT|WDT|PRP|JJR|JJS/
-              # In some cases we want to move the start of a term to the right. These cases are:
-              # - a determiner (the, a, etc)
-              # - a posessive pronoun (my, your, etc) 
-              # - comparative and superlative adjectives (best, better, etc.)
-              # In all cases we only do this for noun terms, and will only move them to internal points.
-              b[:can_start] ||= (chunks[i] == "I-NP")
-              @boundaries[i - 1][:can_start] = false
-          end
+
+        # In some cases we want to move the start of a term to the right. These cases are:
+        # - a determiner (the, a, etc)
+        # - a posessive pronoun (my, your, etc) 
+        # - comparative and superlative adjectives (best, better, etc.)
+        # - A number. In this case note that starting with the number is also allowed. e.g. "two cities" will produce both "two cities"
+        # In all cases we only do this for noun terms, and will only move them to internal points.
+        if (chunks[i] == "I-NP") && (postags[i-1] =~ /DT|WDT|PRP|JJR|JJS|CD/)
+            b[:can_start] = true 
         end
 
         # We must include any tokens internal to the current chunk
@@ -142,9 +152,11 @@ class TermExtractor
           @boundaries[i - 1][:can_end] = false
         end
 
-        # Must match the requirements for POSes at the beginning and end.      
-        b[:can_start] &&= !(pos =~ parent.proscribed_start) 
-        b[:can_end] &&= (pos =~ parent.required_ending) 
+        # Common sources of crap starting words
+        b[:can_start] &&= !(pos =~ /CC|PRP|IN|DT|PRP\$|WP|WP\$|TO|EX|JJR|JJS/)
+
+        # TODO: Is this still a good idea?
+        b[:can_end] &&= (pos =~ /NN|NNS|NNP|NNPS|FW|CD/)
 
       end
 
@@ -179,7 +191,10 @@ class TermExtractor
 
         term = tokens[i..j]
         poses = postags.to_a[i..j]
-        term = Term.new(TermExtractor.recombobulate_term(term), poses.join("-"))
+        term = Term.new(term){ |it|
+          it.pos = poses.join("-")
+          it.chunks = chunks.to_a[i..j]
+        }
         terms << term if TermExtractor.allowed_term?(term)
 
         j += 1
@@ -209,7 +224,7 @@ class TermExtractor
 
   # Final post filter on terms to determine if they're allowed.
   def self.allowed_term?(p)
-    return false if p.pos =~ /^CD(-CD)*$/ # We don't allow things which are just sequences of numbers
+    return false if p.to_s =~ /^[^a-zA-Z]*$/ # We don't allow things which are just sequences of numbers
     return false if p.to_s.length > 255
     true
   end

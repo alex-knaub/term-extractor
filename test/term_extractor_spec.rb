@@ -15,18 +15,6 @@ def each_tag(&blk)
 end
 
 describe TermExtractor do
-  it "should only return themes ending in nouns" do
-    each_tag do |tag|
-      tag.pos.should =~ /(^|-)(#{PE.required_ending})$/
-    end
-  end
-
-  it "must not return themes starting with proscribed parts of speech" do
-    each_tag do  |tag|
-      tag.pos.should_not =~ /^(#{PE.proscribed_start})($|-)/
-    end
-  end
-
   it "should produce at least as many tags as words" do
     each_tag do |tag|
       tag.pos.split("-").length.should be >= tag.to_s.split.length
