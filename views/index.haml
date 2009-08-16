@@ -1,0 +1,19 @@
+%html{ :xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en" }
+  %head
+    %title Training 
+  
+    %link{:rel => "stylesheet", :type => "text/css", :href => "/style.css"}/
+  %body
+    %h1 Term Extractor Training
+    %form{ :method => "POST" }
+      %div{ :style => "float: left; width: 60%;"}
+        %textarea{ :style =>"width: 100%; height: 60em;", :name => "text"}= @text
+        %input{:type => "submit", :name => "extract", :value => "Extract"}
+          
+      %div{ :style => "float: right; width: 35%;"}
+        %h2 Good terms
+        %textarea{ :style => "width: 100%; height: 20em;", :name => "goodterms"}= @terms && @terms.join("\n")
+        %h2 Bad terms
+        %textarea{ :style => "width: 100%; height: 20em;", :name => "badterms"}
+
+        %input{:type => "submit", :name => "train", :value => "Train"}

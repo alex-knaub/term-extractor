@@ -17,7 +17,7 @@ class TermExtractor
 
     # Empirically, terms longer than about 5 words seem to be either
     # too specific to be useful or very noisy.
-    @max_term_length = 5
+    @max_term_length = 4 
 
     # Common sources of crap starting words
     @proscribed_start = /CC|PRP|IN|DT|PRP\$|WP|WP\$|TO|EX/
