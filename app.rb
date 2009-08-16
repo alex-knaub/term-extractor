@@ -15,7 +15,7 @@ end
 post '/' do
   if params[:extract]
     @text = params[:text]
-    @terms = TE.extract_terms_from_text(@text)
+    @terms = TE.extract_terms_from_text(@text).map{|x| x.to_s}.uniq
   elsif params[:train]
     File.open("training/good", "a"){|o| o.puts params[:goodterms]}
     File.open("training/bad", "a"){|o| o.puts params[:badterms]}
