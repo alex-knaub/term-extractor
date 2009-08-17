@@ -86,6 +86,8 @@ class TermExtractor
       text = text.dup    
       text.gsub!(/--+/, " -- ") # TODO: What's this for? 
 
+      text.gsub!(/…/, "...") # expand ellipsis character
+
       # Normalize bracket types.   
       # TODO: Shouldn't do this inside of tokens.
       text.gsub!(/{\[/, "(") 
