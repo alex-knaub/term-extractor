@@ -89,13 +89,16 @@ class TermExtractor
 
         # words which are extra double plus stop wordy and shouldn't appear inside
         # terms
-        # FIXME: This is a hack. 
+        # FIXME: This is a hack. We're really hitting the limit of
+        # rule based systems here
         b[:can_cross] &&= ![
           "after", 
           "where",
           "when",
           "for",
-          "at"
+          "at",
+          "to",
+          "with"
         ].include?(tok)
  
         # Cannot cross the beginning of verb terms

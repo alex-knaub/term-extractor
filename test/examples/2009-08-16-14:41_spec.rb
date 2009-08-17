@@ -14,7 +14,7 @@ describe "the example generated at 2009-08-16-14:41" do
   end
 
   it "should not contain the following terms" do 
-    ["increasing regularity", "days\342\200\246", "voice to the cacophony", "answer with gusto"].each do |term|
+    ["days\342\200\246", "voice to the cacophony", "answer with gusto"].each do |term|
       Terms.should_not include(term)
     end
   end
